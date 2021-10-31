@@ -93,15 +93,36 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 
-          #check = myc.execute("SELECT Password FROM users WHERE EMAIL= %(unm)s", {'unm': a})
-          #mydb.commit()
+          myc.execute("SELECT * FROM users WHERE Email= %(unm)s", {'unm': a})
+
+          for j in myc:
+              print(j)
+
+
+          mydb.commit()
+
+          myc.execute("SELECT Password FROM users WHERE Email= %(unm)s", {'unm': a})
+
+          for i in myc:
+              print(i)
+              if i == b:
+                  print("OK")
+              else:
+                  print("Incorrect Password")
+
+          mydb.commit()
+
+
+
 
 
 
           print(data)
           # convert from json
-          y = json.loads(data)
-          response = y
+          #y = json.loads(data)
+          #response = ""+i+","+j
+          response = {}
+          response["status"] = f"{i},{j}"
 
 
 
