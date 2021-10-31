@@ -110,7 +110,21 @@ class RequestHandler(BaseHTTPRequestHandler):
                   response = {}
                   response["status"] = f"{i[3]},{j},{k}"
 
-                  self.send_dict_response(response)
+                  res1 = {}
+                  res1["Adm"] = f"{i[3]}"
+                  res2 = {}
+                  res2["Status"] = f"{k}"
+                  res3 = {}
+                  res3["Info"] = f"{j}"
+
+                  el = [res1,res2,res3]
+
+                  self.wfile.write(bytes(dumps(el), "utf8"))
+
+
+
+                  #self.send_dict_response(response)
+
               else:
                   k ="Incorrect Password"
                   response = {}
