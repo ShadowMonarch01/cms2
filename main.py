@@ -101,14 +101,22 @@ class RequestHandler(BaseHTTPRequestHandler):
 
           mydb.commit()
 
-          myc.execute("SELECT Password FROM users WHERE Email= %(unm)s", {'unm': a})
+          myc.execute("SELECT * FROM users WHERE Email= %(unm)s", {'unm': a})
 
           for i in myc:
               print(i)
-              if i == b:
-                  print("OK")
+              if i[2] == b:
+                  k="Password correct OK"
+                  response = {}
+                  response["status"] = f"{i[3]},{j},{k}"
+
+                  self.send_dict_response(response)
               else:
-                  print("Incorrect Password")
+                  k ="Incorrect Password"
+                  response = {}
+                  response["status"] = f"{k}"
+
+                  self.send_dict_response(response)
 
           mydb.commit()
 
@@ -117,16 +125,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 
-          print(data)
-          # convert from json
-          #y = json.loads(data)
-          #response = ""+i+","+j
-          response = {}
-          response["status"] = f"{i},{j}"
 
-
-
-          self.send_dict_response(response)
 
       if self.path.endswith('/register'):
           self.send_response(200)
