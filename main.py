@@ -6,9 +6,9 @@ import mysql.connector
 from sqlalchemy import create_engine, MetaData,Table,Column,Integer,Boolean,String,TEXT,FLOAT
 from sqlalchemy.orm import declarative_base,sessionmaker
 
-mydb = mysql.connector.connect(host='sql5.freesqldatabase.com',user='sql5447520',password='nwy2VMhGQW',database='sql5447520')
+mydb = mysql.connector.connect(host='sql5.freemysqlhosting.net',user='sql5449002',password='1jQwP9wwk9',database='sql5449002')
 
-engine = create_engine("mysql+pymysql://sql5447520:nwy2VMhGQW@sql5.freesqldatabase.com/sql5447520")
+engine = create_engine("mysql+pymysql://sql5449002:1jQwP9wwk9@sql5.freemysqlhosting.net/sql5449002")
 
 engine.connect()
 
@@ -91,22 +91,20 @@ class RequestHandler(BaseHTTPRequestHandler):
               print(a)
               print(b)
 
-
-
           myc.execute("SELECT * FROM users WHERE Email= %(unm)s", {'unm': a})
 
           for j in myc:
               print(j)
 
-
           mydb.commit()
 
-          myc.execute("SELECT * FROM users WHERE Email= %(unm)s", {'unm': a})
-
+          check = myc.execute("SELECT * FROM users WHERE Email= %(unm)s", {'unm': a})
+          print(check)
           for i in myc:
               print(i)
+
               if i[2] == b:
-                  k="Password correct OK"
+                  k = "Password correct OK"
                   response = {}
                   response["status"] = f"{i[3]},{j},{k}"
 
@@ -117,29 +115,39 @@ class RequestHandler(BaseHTTPRequestHandler):
                   res3 = {}
                   res3["Info"] = f"{j}"
 
-                  el = [res1,res2,res3]
+                  el = [res1, res2, res3]
 
                   self.wfile.write(bytes(dumps(el), "utf8"))
 
+                  check = True
 
-
-                  #self.send_dict_response(response)
+                  # self.send_dict_response(response)
 
               else:
-                  k ="Incorrect Password"
+                  k = "Incorrect Password"
                   response = {}
                   response["status"] = f"{k}"
 
-                  self.send_dict_response(response)
+                  res4 = {}
+                  res4["IncorrectPassword"] = f"{k}"
+
+                  el2 = [res4]
+                  self.wfile.write(bytes(dumps(el2), "utf8"))
+                  check = True
+
+          if not check:
+              l = "Email Does not exist"
+              response = {}
+              response["status"] = f"{l}"
+
+              res5 = {}
+              res5["NoUserFound"] = f"{l}"
+
+              el3 = [res5]
+              self.wfile.write(bytes(dumps(el3), "utf8"))
+              # self.send_dict_response(response)
 
           mydb.commit()
-
-
-
-
-
-
-
 
       if self.path.endswith('/register'):
           self.send_response(200)
@@ -159,24 +167,60 @@ class RequestHandler(BaseHTTPRequestHandler):
           if "email" in y:
               a = y["email"]
               b = y["password"]
+
               print(a)
               print(b)
 
-              #check = myc.execute("SELECT Email FROM users WHERE EMAIL= %(unm)s", {'unm':a})
-
-
-
-
+              # check = myc.execute("SELECT Email FROM users WHERE EMAIL= %(unm)s", {'unm':a})
 
               # new_user = users(email=a, password=b)
 
-              ins = users.insert().values(Email=a, Password=b,FullName="")
+              ins = users.insert().values(Email=a, Password=b, FullName="")
               conn = engine.connect()
               conn.execute(ins)
               self.send_dict_response(response)
 
+      if self.path.endswith('/admregister'):
+          self.send_response(200)
+          self._send_cors_headers()
+          self.send_header("Content-Type", "application/json")
+          self.end_headers()
 
-          #self.send_dict_response(response)
+          dataLength = int(self.headers["Content-Length"])
+          data = self.rfile.read(dataLength)
+
+          data.strip()
+
+          print(data)
+          # convert from json
+          y = json.loads(data)
+          response = y
+          if "email" in y:
+              a = y["email"]
+              b = y["password"]
+              c = y["Adm"]
+              d = y["FullName"]
+              e = y["DateOfBirth"]
+              f = y["Picture"]
+              g = y["SchoolStartYear"]
+              h = y["MajorFieldOfStudy"]
+              i = y["MinorFieldOfStudy"]
+              j = y["AdCourses"]
+              k = y["Average"]
+              l = y["Comments"]
+              m = y["Remark"]
+              #n = y["password"]
+              print(a)
+              print(b)
+
+              # check = myc.execute("SELECT Email FROM users WHERE EMAIL= %(unm)s", {'unm':a})
+
+              # new_user = users(email=a, password=b)
+
+              ins = users.insert().values(Email=a, Password=b,Adm=bool(c), FullName=d,DateOfBirth=e,Picture=f,SchoolStartYear=g,MajorFieldOfStudy=h,MinorFieldOfStudy=i,AdCourses=j,Average=k,Comments=l,Remark=m)
+              conn = engine.connect()
+              conn.execute(ins)
+      #self.send_dict_response(response)
 
 
 print("Starting server")
