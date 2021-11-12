@@ -6,9 +6,9 @@ import mysql.connector
 from sqlalchemy import create_engine, MetaData,Table,Column,Integer,Boolean,String,TEXT,FLOAT
 from sqlalchemy.orm import declarative_base,sessionmaker
 
-mydb = mysql.connector.connect(host='sql5.freemysqlhosting.net',user='sql5449002',password='1jQwP9wwk9',database='sql5449002')
+mydb = mysql.connector.connect(host='sql4.freemysqlhosting.net',user='sql4450350',password='L1lMFEHWxj',database='sql4450350')
 
-engine = create_engine("mysql+pymysql://sql5449002:1jQwP9wwk9@sql5.freemysqlhosting.net/sql5449002")
+engine = create_engine("mysql+pymysql://sql4450350:L1lMFEHWxj@sql4.freemysqlhosting.net/sql4450350")
 
 engine.connect()
 
@@ -205,13 +205,14 @@ class RequestHandler(BaseHTTPRequestHandler):
               g = y["SchoolStartYear"]
               h = y["MajorFieldOfStudy"]
               i = y["MinorFieldOfStudy"]
-              j = y["AdCourses"]
+              j = ','.join(y["AdCourses"])
               k = y["Average"]
               l = y["Comments"]
               m = y["Remark"]
               #n = y["password"]
               print(a)
               print(b)
+              print(j)
 
               # check = myc.execute("SELECT Email FROM users WHERE EMAIL= %(unm)s", {'unm':a})
 
