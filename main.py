@@ -6,9 +6,9 @@ import mysql.connector
 from sqlalchemy import create_engine, MetaData,Table,Column,Integer,Boolean,String,TEXT,FLOAT
 from sqlalchemy.orm import declarative_base,sessionmaker
 
-mydb = mysql.connector.connect(host='sql4.freemysqlhosting.net',user='sql4450350',password='L1lMFEHWxj',database='sql4450350')
+mydb = mysql.connector.connect(host='localhost',user='root',password='1234567890',database='backstress')
 
-engine = create_engine("mysql+pymysql://sql4450350:L1lMFEHWxj@sql4.freemysqlhosting.net/sql4450350")
+engine = create_engine("mysql+pymysql://root:1234567890@localhost/backstress")
 
 engine.connect()
 
@@ -222,6 +222,61 @@ class RequestHandler(BaseHTTPRequestHandler):
               conn = engine.connect()
               conn.execute(ins)
       #self.send_dict_response(response)
+
+      if self.path.endswith('/admsearch'):
+          self.send_response(200)
+          self._send_cors_headers()
+          self.send_header("Content-Type", "application/json")
+          self.end_headers()
+
+          dataLength = int(self.headers["Content-Length"])
+          data = self.rfile.read(dataLength)
+
+          data.strip()
+
+          print(data)
+          # convert from json
+          y = json.loads(data)
+
+          ob = ["id","Email","Password","Adm","FullName","DateOfBirth","Picture","SchoolStartYear","MajorFieldOfStudy","MinorFieldOfStudy","Courses","AdCourses","Average","Comments","Suspended","Remark"]
+          counter = 0
+          fndcount=[]
+
+          if "search" in y:
+              a = y["search"]
+
+              t = str(a)
+
+              query = "SELECT * FROM users WHERE FullName LIKE %s"
+              name = ("%"+t+"%",)
+              #name = ("%W%",)
+              myc.execute(query, name)
+
+              check= myc.fetchall()
+
+
+              for res in check:
+
+                  print(res)
+                  sndcount = []
+                  obj = {}
+                  for pl in res:
+                      obj[ob[counter]] = pl
+
+                      counter = counter + 1
+
+
+                  # sndcount.append({ob[counter]:pl})
+
+                  fndcount.append(obj)
+                  counter = 0
+
+                  response = {}
+                  response["userinfo"] = f"{fndcount}"
+          self.wfile.write(bytes(dumps(response), "utf8"))
+
+
+
 
 
 print("Starting server")
