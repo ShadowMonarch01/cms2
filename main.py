@@ -6,6 +6,7 @@ import mysql.connector
 from sqlalchemy import create_engine, MetaData,Table,Column,Integer,Boolean,String,TEXT,FLOAT
 from sqlalchemy.orm import declarative_base,sessionmaker
 
+
 mydb = mysql.connector.connect(host='localhost',user='root',password='1234567890',database='backstress')
 
 engine = create_engine("mysql+pymysql://root:1234567890@localhost/backstress")
@@ -274,6 +275,269 @@ class RequestHandler(BaseHTTPRequestHandler):
                   response = {}
                   response["userinfo"] = f"{fndcount}"
           self.wfile.write(bytes(dumps(response), "utf8"))
+
+# UPDATING THE STUDENT PROFILE REQUIRES THE Email OF THE ADMIN THATS UPDATING THE STATUS AS(admemail) THEN ALL THE STUDENT INFO
+# THE COURSES AND ADDITIONAL COURSES SHOULD BE IN ARRAY FORMAT
+
+      if self.path.endswith('/updatestudentinfo'):
+          self.send_response(200)
+          self._send_cors_headers()
+          self.send_header("Content-Type", "application/json")
+          self.end_headers()
+
+          dataLength = int(self.headers["Content-Length"])
+          data = self.rfile.read(dataLength)
+
+          data.strip()
+
+          print(data)
+          # convert from json
+          y = json.loads(data)
+
+          if "admemail" in y:
+              admcheck = y["admemail"]
+              a = y["email"]
+              d = y["FullName"]
+              e = y["DateOfBirth"]
+              f = y["Picture"]
+              g = y["SchoolStartYear"]
+              h = y["MajorFieldOfStudy"]
+              i = y["MinorFieldOfStudy"]
+              j = ','.join(y["AdCourses"])
+              k = y["Average"]
+              l = y["Comments"]
+              m = y["Remark"]
+              n = y["id"]
+              o = ','.join(y["Courses"])
+
+              tid = int(n)
+
+          myc.execute("SELECT Adm FROM users WHERE Email= %(unm)s", {'unm': admcheck})
+
+
+          check= myc.fetchall()
+
+          for res in check:
+              for rr in res:
+                  if rr == 1:
+                      print('Admin stats true')
+                      myc.execute('UPDATE users SET Email = %s ,FullName = %s ,DateOfBirth = %s ,Picture = %s ,SchoolStartYear = %s ,MajorFieldOfStudy = %s ,MinorFieldOfStudy = %s,Courses=%s ,AdCourses = %s ,Average = %s ,Comments = %s ,Remark = %s WHERE id = %s ',(a,d, e, f, g,h,i,o,j,k,l,m,tid))
+                      mydb.commit()
+                  else:
+                      print("Admin stats false")
+
+          print(check)
+
+ # STUDENT UPDATES HIS ADDITIONAL COURSES REQUIRES THE ADDITIONAL COURSES IN AN ARRAY AND HIS EMAIL
+      if self.path.endswith('/updteadcourses'):
+          self.send_response(200)
+          self._send_cors_headers()
+          self.send_header("Content-Type", "application/json")
+          self.end_headers()
+
+          dataLength = int(self.headers["Content-Length"])
+          data = self.rfile.read(dataLength)
+
+          data.strip()
+
+          print(data)
+          # convert from json
+          y = json.loads(data)
+
+          if "adcourses" in y:
+              courses = ','.join(y["AdCourses"])
+              a = y["email"]
+
+          myc.execute('UPDATE users SET AdCourses = %s WHERE Email = %s ',(courses,a))
+          mydb.commit()
+
+# SUSPENDING THE STUDENT REQUIRES THE ADMIN Email AS(admemail) THEN THE STUDENT EMAIL AND A STRING OF "1" OR "0" FOR THE BOOLIAN STATUS
+      if self.path.endswith('/suspendstudent'):
+          self.send_response(200)
+          self._send_cors_headers()
+          self.send_header("Content-Type", "application/json")
+          self.end_headers()
+
+          dataLength = int(self.headers["Content-Length"])
+          data = self.rfile.read(dataLength)
+
+          data.strip()
+
+          print(data)
+          # convert from json
+          y = json.loads(data)
+
+          if "admemail" in y:
+              admcheck = y["admemail"]
+              a = y["email"]
+              b = y["stats"]
+
+              tid = int(b)
+
+          myc.execute("SELECT Adm FROM users WHERE Email= %(unm)s", {'unm': admcheck})
+
+          check = myc.fetchall()
+
+          for res in check:
+              for rr in res:
+                  if rr == 1:
+                      print('Admin stats true')
+                      myc.execute('UPDATE users SET Suspended = %s WHERE Email = %s ',(tid, a))
+                      mydb.commit()
+                  else:
+                      print("Admin stats false")
+
+
+# MAKING A NEW ADMIN REQUIRES THE ADMIN Email AS(admemail) THEN THE OTHER EMAIL AND A STRING OF "1" OR "0" FOR THE BOOLIAN STATUS
+      if self.path.endswith('/mknewadmin'):
+          self.send_response(200)
+          self._send_cors_headers()
+          self.send_header("Content-Type", "application/json")
+          self.end_headers()
+
+          dataLength = int(self.headers["Content-Length"])
+          data = self.rfile.read(dataLength)
+
+          data.strip()
+
+          print(data)
+          # convert from json
+          y = json.loads(data)
+
+          if "admemail" in y:
+              admcheck = y["admemail"]
+              a = y["email"]
+              b = y["stats"]
+
+              tid = int(b)
+
+          myc.execute("SELECT Adm FROM users WHERE Email= %(unm)s", {'unm': admcheck})
+
+          check = myc.fetchall()
+
+          for res in check:
+              for rr in res:
+                  if rr == 1:
+                      print('Admin stats true')
+                      myc.execute('UPDATE users SET Adm = %s WHERE Email = %s ', (tid, a))
+                      mydb.commit()
+                  else:
+                      print("Admin stats false")
+
+
+#  RETURNS ALL USERS REQUIRES THE ADMIN EMAIL AS INPUT FOR VERIFICATION
+      if self.path.endswith('/getalluser'):
+          self.send_response(200)
+          self._send_cors_headers()
+          self.send_header("Content-Type", "application/json")
+          self.end_headers()
+
+          dataLength = int(self.headers["Content-Length"])
+          data = self.rfile.read(dataLength)
+
+          data.strip()
+
+          print(data)
+          # convert from json
+          y = json.loads(data)
+
+          if "admemail" in y:
+              admcheck = y["admemail"]
+
+
+          myc.execute("SELECT Adm FROM users WHERE Email= %(unm)s", {'unm': admcheck})
+
+          check = myc.fetchall()
+
+          for res in check:
+              for rr in res:
+                  if rr == 1:
+                      print('Admin stats true')
+
+                      ob = ["id", "Email", "Password", "Adm", "FullName", "DateOfBirth", "Picture", "SchoolStartYear",
+                            "MajorFieldOfStudy", "MinorFieldOfStudy", "Courses", "AdCourses", "Average", "Comments",
+                            "Suspended", "Remark"]
+                      counter = 0
+                      fndcount = []
+
+                      myc.execute('SELECT * FROM users WHERE Adm = %s', (0,))
+
+                      check = myc.fetchall()
+
+                      for res in check:
+
+                          print(res)
+                          sndcount = []
+                          obj = {}
+                          for pl in res:
+                              obj[ob[counter]] = pl
+
+                              counter = counter + 1
+
+                          # sndcount.append({ob[counter]:pl})
+
+                          fndcount.append(obj)
+                          counter = 0
+
+                          response = {}
+                          response["userinfo"] = f"{fndcount}"
+                      self.wfile.write(bytes(dumps(response), "utf8"))
+                  else:
+                      print("Admin stats false")
+
+
+# RETURNS THE STUDENTS INFO REQUIRES THE STUDENT EMAIL AS INPUT
+      if self.path.endswith('/getstudentinfo'):
+          self.send_response(200)
+          self._send_cors_headers()
+          self.send_header("Content-Type", "application/json")
+          self.end_headers()
+
+          dataLength = int(self.headers["Content-Length"])
+          data = self.rfile.read(dataLength)
+
+          data.strip()
+
+          print(data)
+          # convert from json
+          y = json.loads(data)
+
+          if "email" in y:
+              a = y["email"]
+
+          myc.execute('SELECT * FROM users WHERE Email= %s', (a,))
+
+          check = myc.fetchall()
+
+          ob = ["id", "Email", "Password", "Adm", "FullName", "DateOfBirth", "Picture", "SchoolStartYear",
+                "MajorFieldOfStudy", "MinorFieldOfStudy", "Courses", "AdCourses", "Average", "Comments",
+                "Suspended", "Remark"]
+          counter = 0
+          fndcount = []
+
+
+
+          for res in check:
+
+              print(res)
+              sndcount = []
+              obj = {}
+              for pl in res:
+                  obj[ob[counter]] = pl
+
+                  counter = counter + 1
+
+              # sndcount.append({ob[counter]:pl})
+
+              fndcount.append(obj)
+              counter = 0
+
+              response = {}
+              response["userinfo"] = f"{fndcount}"
+          self.wfile.write(bytes(dumps(response), "utf8"))
+
+
+
 
 
 
